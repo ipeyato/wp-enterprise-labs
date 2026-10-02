@@ -1,0 +1,22 @@
+{
+  "name": "ipeyato/lab01-dev-environment",
+  "description": "Lab 01: environment-aware configuration and secrets for WordPress.",
+  "type": "project",
+  "license": "MIT",
+  "require": {
+    "php": ">=8.3",
+    "vlucas/phpdotenv": "^5.6"
+  },
+  "autoload": {
+    "psr-4": {
+      "Lab01\\": "src/"
+    }
+  },
+  "config": {
+    "platform": {
+      "php": "8.3.0"
+    },
+    "optimize-autoloader": true,
+    "sort-packages": true
+  }
+}

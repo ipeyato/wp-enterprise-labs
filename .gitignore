@@ -1,0 +1,20 @@
+# Dependencies
+vendor/
+node_modules/
+
+# Build output
+build/
+dist/
+
+# Local environment
+.env
+.env.*
+!.env.example
+.wp-env*.override.json
+*.log
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json

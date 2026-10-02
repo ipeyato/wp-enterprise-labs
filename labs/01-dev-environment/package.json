@@ -1,0 +1,22 @@
+{
+  "name": "lab01-dev-environment",
+  "private": true,
+  "description": "Lab 01: a reproducible local WordPress environment with wp-env.",
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@wordpress/env": "11.16.0"
+  },
+  "scripts": {
+    "setup": "composer install && cp -n .env.example .env || true",
+    "start": "wp-env start",
+    "stop": "wp-env stop",
+    "start:prod": "wp-env --config=.wp-env.production.json start",
+    "start:staging": "wp-env --config=.wp-env.staging.json start",
+    "stop:prod": "wp-env --config=.wp-env.production.json stop",
+    "report": "wp-env run cli wp lab01 report",
+    "report:prod": "wp-env --config=.wp-env.production.json run cli wp lab01 report",
+    "destroy": "wp-env destroy && wp-env --config=.wp-env.production.json destroy"
+  }
+}

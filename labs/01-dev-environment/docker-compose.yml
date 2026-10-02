@@ -1,0 +1,56 @@
+# Production-like stack with pinned versions (Lab 01, challenge 4).
+# wp-env cannot pin the database version; Compose can.
+name: lab01-compose
+
+services:
+  db:
+    image: mysql:8.0.32 # pinned database version
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - db_data:/var/lib/mysql # persists between restarts
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 5s
+      retries: 20
+
+  wordpress:
+    image: wordpress:7.1.2-php8.3-apache # pinned WordPress + PHP
+    depends_on:
+      db:
+        condition: service_healthy # wait until MySQL accepts connections
+    ports:
+      - "8080:80" # http://localhost:8080
+    environment: &wp_env
+      WORDPRESS_DB_HOST: db # services reach each other by service name
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_CONFIG_EXTRA: |
+        define( 'WP_ENVIRONMENT_TYPE', 'production' );
+        define( 'WP_DEBUG_DISPLAY', false );
+        define( 'LAB01_APP_DIR', '/var/www/lab01' );
+      # Injected as real environment variables, read by Lab01\Secrets::get().
+      # Compose fills ${...} from .env when the container is created.
+      WEATHER_API_KEY: ${WEATHER_API_KEY}
+      MAPS_API_KEY: ${MAPS_API_KEY}
+    volumes: &wp_volumes
+      - wp_data:/var/www/html
+      - ./mu-plugins:/var/www/html/wp-content/mu-plugins
+      - .:/var/www/lab01 # app code, vendor/ and .env stay outside the web root
+
+  cli:
+    image: wordpress:cli-2.12.0-php8.3
+    user: "33:33" # match Apache's www-data uid so WP-CLI can write to wp-content
+    depends_on:
+      - wordpress
+    environment: *wp_env
+    volumes: *wp_volumes
+    profiles: ["tools"] # only runs via `docker compose run --rm cli ...`
+
+volumes:
+  db_data:
+  wp_data:
